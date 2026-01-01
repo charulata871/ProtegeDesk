@@ -6,15 +6,9 @@ import { Button } from "@/components/ui/button";
 import { useOntology } from "@/lib/ontology/context";
 import { cn } from "@/lib/utils";
 import type { OntologyClass } from "@/lib/ontology/types";
-import { useState } from "react"
-import debug from "debug"
-import { ChevronRight, ChevronDown, Plus, Trash2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { useOntology } from "@/lib/ontology/context"
-import { cn } from "@/lib/utils"
-import type { OntologyClass } from "@/lib/ontology/types"
+import debug from "debug";
 
-const log = debug("app:class-tree")
+const log = debug("app:class-tree");
 
 
 type ClassTreeNodeProps = {
@@ -32,24 +26,13 @@ function ClassTreeNode({ classId, owlClass, level }: ClassTreeNodeProps) {
     c.superClasses.includes(classId)
   );
 
-  console.log(
-    `ClassTreeNode: Rendering ${
-      owlClass.label || owlClass.name
-    } at level ${level}`,
-    {
-      classId,
-      hasChildren: subclasses.length > 0,
-      isExpanded,
-    }
-  );
-  const subclasses = Array.from(ontology?.classes.values() || []).filter((c) => c.superClasses.includes(classId))
- log("Rendering class node", {
+  log("Rendering class node", {
     classId,
     label: owlClass.label || owlClass.name,
     level,
     hasChildren: subclasses.length > 0,
     isExpanded,
-  })
+  });
 
   const hasChildren = subclasses.length > 0;
   const isSelected = selectedClass?.id === classId;
@@ -79,9 +62,7 @@ function ClassTreeNode({ classId, owlClass, level }: ClassTreeNodeProps) {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              console.log("ClassTreeNode: Toggle expand/collapse", {
-              e.stopPropagation()
-                log("Toggle expand/collapse", {
+              log("Toggle expand/collapse", {
                 className: owlClass.label || owlClass.name,
                 wasExpanded: isExpanded,
                 willBeExpanded: !isExpanded,
@@ -137,8 +118,7 @@ export function ClassTree() {
       (c.superClasses.length === 1 && c.superClasses[0] === "owl:Thing")
   );
 
-  console.log("ClassTree: Rendering with root classes", {
-      log("Rendering with class treecd", {
+  log("Rendering with class tree", {
     totalClasses: ontology?.classes.size || 0,
     rootClassCount: rootClasses.length,
     rootClasses: rootClasses.map((c) => c.label || c.name),
