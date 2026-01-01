@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { useOntology } from "@/lib/ontology/context"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
+
 export function ClassDetails() {
   const { selectedClass, ontology } = useOntology()
 

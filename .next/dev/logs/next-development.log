@@ -105,3 +105,10 @@
 [00:05:20.130] Browser LOG     ClassTreeNode: Rendering Employee at level 1 {"classId":"Employee","hasChildren":false,"isExpanded":true}
 [00:05:20.130] Browser LOG     ClassTreeNode: Rendering Organization at level 0 {"classId":"Organization","hasChildren":false,"isExpanded":true}
 [00:05:20.130] Browser LOG     ClassTreeNode: Rendering Organization at level 0 {"classId":"Organization","hasChildren":false,"isExpanded":true}
+[00:15:58.532] Server  LOG      ✓ Compiled in 106ms
+[00:16:46.832] Server  LOG      ✓ Compiled in 37ms
+[00:16:50.021] Server  LOG      ✓ Compiled in 47ms
+[00:19:10.248] Server  LOG      ✓ Compiled in 50ms
+[00:19:51.529] Server  LOG      ✓ Compiled in 36ms
+[00:30:57.748] Server  LOG      ✓ Compiled in 57ms
+[00:32:02.301] Server  LOG      ✓ Compiled in 51ms
