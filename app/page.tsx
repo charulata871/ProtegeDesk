@@ -15,13 +15,13 @@ const log = debug("protegedesk:homepage")
 
 export default function HomePage() {
   const { setOntology } = useOntology()
-  const [viewMode, setViewMode] = useState<"details" | "graph">("details")
+  const [ontologyViewMode, setOntologyViewMode] = useState<"details" | "graph">("details")
 
   useEffect(() => {
     // Load sample ontology on mount
-      log("Loading sample ontology")
+      log("Loading sample ontology data")
     setOntology(createSampleOntology())
-      log("Sample ontology loaded")
+      log("Sample ontology data loaded successfully")
   }, [setOntology])
 
   return (
@@ -33,9 +33,9 @@ export default function HomePage() {
         </aside>
         <div className="flex-1 overflow-hidden flex flex-col">
           <div className="border-b border-border">
-            <Tabs value={viewMode} onValueChange={(v) => {
-              log("View mode changed to", v)
-              setViewMode(v as any)
+            <Tabs value={ontologyViewMode} onValueChange={(newOntologyViewMode) => {
+              log("Ontology view mode changed to %s", newOntologyViewMode)
+              setOntologyViewMode(newOntologyViewMode)
             }} className="w-full">
               <TabsList className="mx-4 mt-2">
                 <TabsTrigger value="details" className="text-xs">
@@ -47,7 +47,7 @@ export default function HomePage() {
               </TabsList>
             </Tabs>
           </div>
-          <div className="flex-1 overflow-hidden">{viewMode === "details" ? <DetailsPanel /> : <GraphView />}</div>
+          <div className="flex-1 overflow-hidden">{ontologyViewMode === "details" ? <DetailsPanel /> : <GraphView />}</div>
         </div>
         <aside className="w-80 border-l border-border bg-card p-4 overflow-y-auto">
           <OntologyStats />
