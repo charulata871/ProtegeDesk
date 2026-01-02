@@ -118,7 +118,7 @@ export class HermiTReasoner {
   private findUnsatisfiableClasses(): string[] {
     const unsatisfiable: string[] = []
 
-    for (const [classId, owlClass] of this.ontology.classes) {
+    for (const [classId] of this.ontology.classes) {
       // A class is unsatisfiable if it inherits from disjoint classes
       const superClasses = this.getAllSuperClasses(classId)
 
@@ -337,4 +337,3 @@ export function runReasoner(ontology: Ontology): ReasoningResult {
   const reasoner = new HermiTReasoner(ontology)
   return reasoner.reason()
 }
-
