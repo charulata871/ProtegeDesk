@@ -371,12 +371,8 @@ describe('Sample Data Generator', () => {
       const ontology = createSampleOntology()
 
       const john = ontology.individuals.get('john_doe')
-      const hasNameAssertion = john?.propertyAssertions.find(
-        (a) => a.property === 'hasName'
-      )
-      const hasAgeAssertion = john?.propertyAssertions.find(
-        (a) => a.property === 'hasAge'
-      )
+      const hasNameAssertion = john?.propertyAssertions.find(a => a.property === 'hasName')
+      const hasAgeAssertion = john?.propertyAssertions.find(a => a.property === 'hasAge')
 
       expect(hasNameAssertion).toBeDefined()
       expect(hasNameAssertion?.value).toBe('John Doe')

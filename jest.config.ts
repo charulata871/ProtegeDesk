@@ -9,11 +9,14 @@ const config: Config = {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
   },
   transform: {
-    '^.+\\.(ts|tsx)$': ['ts-jest', {
-      tsconfig: {
-        jsx: 'react-jsx',
+    '^.+\\.(ts|tsx)$': [
+      'ts-jest',
+      {
+        tsconfig: {
+          jsx: 'react-jsx',
+        },
       },
-    }],
+    ],
   },
   collectCoverageFrom: [
     'app/**/*.{js,jsx,ts,tsx}',
@@ -24,18 +27,9 @@ const config: Config = {
     '!**/node_modules/**',
     '!**/.next/**',
   ],
-  testMatch: [
-    '**/__tests__/**/*.[jt]s?(x)',
-    '**/?(*.)+(spec|test).[jt]s?(x)',
-  ],
-  transformIgnorePatterns: [
-    '/node_modules/(?!(lucide-react)/)',
-    '^.+\\.module\\.(css|sass|scss)$',
-  ],
-  testPathIgnorePatterns: [
-    '/node_modules/',
-    '/.next/',
-  ],
+  testMatch: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
+  transformIgnorePatterns: ['/node_modules/(?!(lucide-react)/)', '^.+\\.module\\.(css|sass|scss)$'],
+  testPathIgnorePatterns: ['/node_modules/', '/.next/'],
 }
 
 export default config

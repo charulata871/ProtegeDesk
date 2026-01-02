@@ -13,7 +13,11 @@ describe('HermiTReasoner', () => {
     annotations: [],
   })
 
-  const createMockClass = (id: string, name: string, superClasses: string[] = []): OntologyClass => ({
+  const createMockClass = (
+    id: string,
+    name: string,
+    superClasses: string[] = []
+  ): OntologyClass => ({
     id,
     name,
     superClasses,
@@ -23,7 +27,11 @@ describe('HermiTReasoner', () => {
     equivalentTo: [],
   })
 
-  const createMockProperty = (id: string, name: string, type: 'ObjectProperty' | 'DataProperty' | 'AnnotationProperty' = 'ObjectProperty'): OntologyProperty => ({
+  const createMockProperty = (
+    id: string,
+    name: string,
+    type: 'ObjectProperty' | 'DataProperty' | 'AnnotationProperty' = 'ObjectProperty'
+  ): OntologyProperty => ({
     id,
     name,
     type,
@@ -235,8 +243,8 @@ describe('HermiTReasoner', () => {
       const reasoner = new HermiTReasoner(ontology)
       const result = reasoner.reason()
 
-      const unusedWarnings = result.warnings.filter(w =>
-        w.type === 'unused-class' && w.affectedEntities.includes('owl:Thing')
+      const unusedWarnings = result.warnings.filter(
+        w => w.type === 'unused-class' && w.affectedEntities.includes('owl:Thing')
       )
       expect(unusedWarnings).toHaveLength(0)
     })

@@ -1,4 +1,4 @@
-import type { Ontology } from "./types"
+import type { Ontology } from './types'
 
 export type ReasoningResult = {
   consistent: boolean
@@ -10,13 +10,13 @@ export type ReasoningResult = {
 }
 
 export type ReasoningError = {
-  type: "inconsistency" | "unsatisfiable" | "circular"
+  type: 'inconsistency' | 'unsatisfiable' | 'circular'
   message: string
   affectedEntities: string[]
 }
 
 export type ReasoningWarning = {
-  type: "missing-domain" | "missing-range" | "unused-class" | "redundant"
+  type: 'missing-domain' | 'missing-range' | 'unused-class' | 'redundant'
   message: string
   affectedEntities: string[]
 }
@@ -78,13 +78,15 @@ export class HermiTReasoner {
       if (owlClass.disjointWith.length > 0) {
         for (const disjointId of owlClass.disjointWith) {
           const disjointClass = this.ontology.classes.get(disjointId)
-          if (!disjointClass) continue
+          if (!disjointClass) {
+            continue
+          }
 
           // Check if classes share subclasses (violation)
           const sharedSubclasses = this.findSharedSubclasses(classId, disjointId)
           if (sharedSubclasses.length > 0) {
             errors.push({
-              type: "inconsistency",
+              type: 'inconsistency',
               message: `Classes ${owlClass.name} and ${disjointClass.name} are disjoint but share subclasses`,
               affectedEntities: [classId, disjointId, ...sharedSubclasses],
             })
@@ -109,12 +111,17 @@ export class HermiTReasoner {
           const class1 = this.ontology.classes.get(superClasses[i])
           const class2 = this.ontology.classes.get(superClasses[j])
 
-          if (class1?.disjointWith.includes(superClasses[j]) || class2?.disjointWith.includes(superClasses[i])) {
+          if (
+            class1?.disjointWith.includes(superClasses[j]) ||
+            class2?.disjointWith.includes(superClasses[i])
+          ) {
             unsatisfiable.push(classId)
             break
           }
         }
-        if (unsatisfiable.includes(classId)) break
+        if (unsatisfiable.includes(classId)) {
+          break
+        }
       }
     }
 
@@ -132,7 +139,9 @@ export class HermiTReasoner {
       recursionStack.add(classId)
 
       const owlClass = this.ontology.classes.get(classId)
-      if (!owlClass) return false
+      if (!owlClass) {
+        return false
+      }
 
       for (const superClassId of owlClass.superClasses) {
         if (!visited.has(superClassId)) {
@@ -143,8 +152,8 @@ export class HermiTReasoner {
           // Found a cycle
           const cycle = [...path, classId, superClassId]
           errors.push({
-            type: "circular",
-            message: `Circular inheritance detected: ${cycle.map((id) => this.ontology.classes.get(id)?.name).join(" → ")}`,
+            type: 'circular',
+            message: `Circular inheritance detected: ${cycle.map(id => this.ontology.classes.get(id)?.name).join(' → ')}`,
             affectedEntities: cycle,
           })
           return true
@@ -183,15 +192,15 @@ export class HermiTReasoner {
     for (const [propId, property] of this.ontology.properties) {
       if (property.domain.length === 0) {
         warnings.push({
-          type: "missing-domain",
+          type: 'missing-domain',
           message: `Property ${property.name} has no domain specified`,
           affectedEntities: [propId],
         })
       }
 
-      if (property.range.length === 0 && property.type === "ObjectProperty") {
+      if (property.range.length === 0 && property.type === 'ObjectProperty') {
         warnings.push({
-          type: "missing-range",
+          type: 'missing-range',
           message: `Object property ${property.name} has no range specified`,
           affectedEntities: [propId],
         })
@@ -208,27 +217,27 @@ export class HermiTReasoner {
 
     // Mark classes used as super classes
     for (const owlClass of this.ontology.classes.values()) {
-      owlClass.superClasses.forEach((id) => usedClasses.add(id))
-      owlClass.disjointWith.forEach((id) => usedClasses.add(id))
-      owlClass.equivalentTo.forEach((id) => usedClasses.add(id))
+      owlClass.superClasses.forEach(id => usedClasses.add(id))
+      owlClass.disjointWith.forEach(id => usedClasses.add(id))
+      owlClass.equivalentTo.forEach(id => usedClasses.add(id))
     }
 
     // Mark classes used in property domains/ranges
     for (const property of this.ontology.properties.values()) {
-      property.domain.forEach((id) => usedClasses.add(id))
-      property.range.forEach((id) => usedClasses.add(id))
+      property.domain.forEach(id => usedClasses.add(id))
+      property.range.forEach(id => usedClasses.add(id))
     }
 
     // Mark classes used by individuals
     for (const individual of this.ontology.individuals.values()) {
-      individual.types.forEach((id) => usedClasses.add(id))
+      individual.types.forEach(id => usedClasses.add(id))
     }
 
     // Find unused classes (excluding owl:Thing)
     for (const [classId, owlClass] of this.ontology.classes) {
-      if (!usedClasses.has(classId) && classId !== "owl:Thing") {
+      if (!usedClasses.has(classId) && classId !== 'owl:Thing') {
         warnings.push({
-          type: "unused-class",
+          type: 'unused-class',
           message: `Class ${owlClass.name} is defined but never used`,
           affectedEntities: [classId],
         })
@@ -244,11 +253,15 @@ export class HermiTReasoner {
     const visited = new Set<string>()
 
     const traverse = (id: string) => {
-      if (visited.has(id)) return
+      if (visited.has(id)) {
+        return
+      }
       visited.add(id)
 
       const owlClass = this.ontology.classes.get(id)
-      if (!owlClass) return
+      if (!owlClass) {
+        return
+      }
 
       for (const superClassId of owlClass.superClasses) {
         result.add(superClassId)
@@ -265,7 +278,7 @@ export class HermiTReasoner {
     const subclasses1 = this.getAllSubClasses(classId1)
     const subclasses2 = this.getAllSubClasses(classId2)
 
-    return subclasses1.filter((id) => subclasses2.includes(id))
+    return subclasses1.filter(id => subclasses2.includes(id))
   }
 
   // Helper: Get all subclasses

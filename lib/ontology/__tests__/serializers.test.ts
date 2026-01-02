@@ -98,7 +98,9 @@ describe('Ontology Serializers', () => {
       const result = serializeToJSONLD(ontology)
       const parsed = JSON.parse(result)
 
-      const student = parsed['@graph'].find((item: any) => item['@id'] === 'http://example.org/Student')
+      const student = parsed['@graph'].find(
+        (item: any) => item['@id'] === 'http://example.org/Student'
+      )
       expect(student['rdfs:subClassOf']).toEqual([{ '@id': 'http://example.org/Person' }])
     })
 
@@ -117,7 +119,9 @@ describe('Ontology Serializers', () => {
       expect(property['@id']).toBe('http://example.org/hasAge')
       expect(property['@type']).toBe('owl:ObjectProperty')
       expect(property['rdfs:domain']).toEqual([{ '@id': 'http://example.org/Person' }])
-      expect(property['rdfs:range']).toEqual([{ '@id': 'http://www.w3.org/2001/XMLSchema#integer' }])
+      expect(property['rdfs:range']).toEqual([
+        { '@id': 'http://www.w3.org/2001/XMLSchema#integer' },
+      ])
     })
 
     it('should serialize individuals to JSON-LD', () => {
@@ -148,7 +152,9 @@ describe('Ontology Serializers', () => {
       const result = serializeToJSONLD(ontology)
       const parsed = JSON.parse(result)
 
-      const animal = parsed['@graph'].find((item: any) => item['@id'] === 'http://example.org/Animal')
+      const animal = parsed['@graph'].find(
+        (item: any) => item['@id'] === 'http://example.org/Animal'
+      )
       expect(animal['owl:disjointWith']).toEqual([{ '@id': 'http://example.org/Plant' }])
     })
 
@@ -435,7 +441,9 @@ describe('Ontology Serializers', () => {
 
       expect(result).toContain('<owl:DataProperty rdf:about="http://example.org/hasAge">')
       expect(result).toContain('<rdfs:domain rdf:resource="http://example.org/Person"/>')
-      expect(result).toContain('<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>')
+      expect(result).toContain(
+        '<rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#integer"/>'
+      )
       expect(result).toContain('</owl:DataProperty>')
     })
 

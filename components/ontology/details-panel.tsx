@@ -1,8 +1,8 @@
-"use client"
+'use client'
 
-import { useOntology } from "@/lib/ontology/context"
-import { ClassDetails } from "./class-details"
-import { PropertyDetails } from "./property-details"
+import { useOntology } from '@/lib/ontology/context'
+import { ClassDetails } from './class-details'
+import { PropertyDetails } from './property-details'
 
 export function DetailsPanel() {
   const { selectedClass, selectedProperty } = useOntology()
@@ -16,7 +16,7 @@ export function DetailsPanel() {
   }
 
   return (
-    <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+    <div className="text-muted-foreground flex h-full items-center justify-center text-sm">
       Select an entity to view details
     </div>
   )

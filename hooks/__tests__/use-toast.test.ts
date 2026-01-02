@@ -36,9 +36,7 @@ describe('useToast hook', () => {
 
     it('should limit toasts to TOAST_LIMIT', () => {
       const state = {
-        toasts: [
-          { id: '1', title: 'Toast 1' },
-        ],
+        toasts: [{ id: '1', title: 'Toast 1' }],
       }
       const action = {
         type: 'ADD_TOAST' as const,
@@ -56,9 +54,7 @@ describe('useToast hook', () => {
 
     it('should update an existing toast', () => {
       const state = {
-        toasts: [
-          { id: '1', title: 'Original Title' },
-        ],
+        toasts: [{ id: '1', title: 'Original Title' }],
       }
       const action = {
         type: 'UPDATE_TOAST' as const,

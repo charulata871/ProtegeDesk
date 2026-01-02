@@ -266,7 +266,9 @@ describe('OntologyContext', () => {
         result.current.updateClass('test-class', { description: 'Updated description' })
       })
 
-      expect(result.current.ontology?.classes.get('test-class')?.description).toBe('Updated description')
+      expect(result.current.ontology?.classes.get('test-class')?.description).toBe(
+        'Updated description'
+      )
     })
 
     it('should not modify state when class does not exist', () => {
@@ -302,7 +304,9 @@ describe('OntologyContext', () => {
         result.current.updateProperty('test-prop', { description: 'Updated property' })
       })
 
-      expect(result.current.ontology?.properties.get('test-prop')?.description).toBe('Updated property')
+      expect(result.current.ontology?.properties.get('test-prop')?.description).toBe(
+        'Updated property'
+      )
     })
   })
 

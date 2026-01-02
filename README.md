@@ -269,6 +269,42 @@ See [TESTING.md](TESTING.md) for detailed documentation.
 | `npm run test:coverage` | Run tests with coverage report |
 | `npm run test:ci` | Run tests in CI mode |
 | `npm run lint` | Run ESLint |
+| `npm run lint:fix` | Auto-fix linting issues |
+| `npm run format` | Format code with Prettier |
+| `npm run type-check` | Run TypeScript type checking |
+| `npm run validate` | Run all checks (type + lint + format + test) |
+
+---
+
+## 🎨 Code Quality & Linting
+
+Professional code quality setup with ESLint 9 and Prettier.
+
+### Quick Commands
+
+```bash
+npm run lint        # Check for issues
+npm run lint:fix    # Auto-fix issues
+npm run format      # Format code
+npm run validate    # Run all checks
+```
+
+### Features
+
+- ✅ **ESLint 9** with flat config format
+- ✅ **TypeScript** strict rules
+- ✅ **React** and hooks enforcement
+- ✅ **Prettier** with Tailwind CSS class sorting
+- ✅ **Accessibility** rules (jsx-a11y)
+- ✅ **Auto-fix** for most issues
+
+### Configuration
+
+- [eslint.config.mjs](eslint.config.mjs) - ESLint configuration
+- [.prettierrc](.prettierrc) - Prettier formatting rules
+- [LINTING.md](LINTING.md) - Complete documentation
+
+See [LINTING.md](LINTING.md) for detailed configuration and IDE setup.
 
 ---
 

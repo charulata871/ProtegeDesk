@@ -33,9 +33,9 @@ describe('cn utility function', () => {
 
   it('should handle objects with conditional classes', () => {
     const result = cn({
-      'active': true,
-      'disabled': false,
-      'selected': true,
+      active: true,
+      disabled: false,
+      selected: true,
     })
     expect(result).toBe('active selected')
   })

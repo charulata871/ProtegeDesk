@@ -1,8 +1,8 @@
-"use client"
+'use client'
 
-import type React from "react"
-import { createContext, useContext, useState, useCallback } from "react"
-import type { Ontology, OntologyClass, OntologyProperty, Individual } from "./types"
+import type React from 'react'
+import { createContext, useContext, useState, useCallback } from 'react'
+import type { Ontology, OntologyClass, OntologyProperty, Individual } from './types'
 
 type OntologyContextType = {
   ontology: Ontology | null
@@ -39,7 +39,7 @@ export function OntologyProvider({ children }: { children: React.ReactNode }) {
       const owlClass = ontology.classes.get(classId)
       setSelectedClass(owlClass || null)
     },
-    [ontology],
+    [ontology]
   )
 
   const selectProperty = useCallback(
@@ -51,7 +51,7 @@ export function OntologyProvider({ children }: { children: React.ReactNode }) {
       const property = ontology.properties.get(propertyId)
       setSelectedProperty(property || null)
     },
-    [ontology],
+    [ontology]
   )
 
   const selectIndividual = useCallback(
@@ -63,12 +63,14 @@ export function OntologyProvider({ children }: { children: React.ReactNode }) {
       const individual = ontology.individuals.get(individualId)
       setSelectedIndividual(individual || null)
     },
-    [ontology],
+    [ontology]
   )
 
   const addClass = useCallback((owlClass: OntologyClass) => {
-    setOntology((prev) => {
-      if (!prev) return prev
+    setOntology(prev => {
+      if (!prev) {
+        return prev
+      }
       const classes = new Map(prev.classes)
       classes.set(owlClass.id, owlClass)
       return { ...prev, classes }
@@ -76,8 +78,10 @@ export function OntologyProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const addProperty = useCallback((property: OntologyProperty) => {
-    setOntology((prev) => {
-      if (!prev) return prev
+    setOntology(prev => {
+      if (!prev) {
+        return prev
+      }
       const properties = new Map(prev.properties)
       properties.set(property.id, property)
       return { ...prev, properties }
@@ -85,8 +89,10 @@ export function OntologyProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const addIndividual = useCallback((individual: Individual) => {
-    setOntology((prev) => {
-      if (!prev) return prev
+    setOntology(prev => {
+      if (!prev) {
+        return prev
+      }
       const individuals = new Map(prev.individuals)
       individuals.set(individual.id, individual)
       return { ...prev, individuals }
@@ -94,8 +100,10 @@ export function OntologyProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const updateClass = useCallback((classId: string, updates: Partial<OntologyClass>) => {
-    setOntology((prev) => {
-      if (!prev) return prev
+    setOntology(prev => {
+      if (!prev) {
+        return prev
+      }
       const classes = new Map(prev.classes)
       const existing = classes.get(classId)
       if (existing) {
@@ -106,8 +114,10 @@ export function OntologyProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const updateProperty = useCallback((propertyId: string, updates: Partial<OntologyProperty>) => {
-    setOntology((prev) => {
-      if (!prev) return prev
+    setOntology(prev => {
+      if (!prev) {
+        return prev
+      }
       const properties = new Map(prev.properties)
       const existing = properties.get(propertyId)
       if (existing) {
@@ -118,8 +128,10 @@ export function OntologyProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const deleteClass = useCallback((classId: string) => {
-    setOntology((prev) => {
-      if (!prev) return prev
+    setOntology(prev => {
+      if (!prev) {
+        return prev
+      }
       const classes = new Map(prev.classes)
       classes.delete(classId)
       return { ...prev, classes }
@@ -127,8 +139,10 @@ export function OntologyProvider({ children }: { children: React.ReactNode }) {
   }, [])
 
   const deleteProperty = useCallback((propertyId: string) => {
-    setOntology((prev) => {
-      if (!prev) return prev
+    setOntology(prev => {
+      if (!prev) {
+        return prev
+      }
       const properties = new Map(prev.properties)
       properties.delete(propertyId)
       return { ...prev, properties }
@@ -163,7 +177,7 @@ export function OntologyProvider({ children }: { children: React.ReactNode }) {
 export function useOntology() {
   const context = useContext(OntologyContext)
   if (context === undefined) {
-    throw new Error("useOntology must be used within an OntologyProvider")
+    throw new Error('useOntology must be used within an OntologyProvider')
   }
   return context
 }
