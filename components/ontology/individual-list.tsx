@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Plus, Search, User } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,6 +14,14 @@ export function IndividualList() {
   const [searchQuery, setSearchQuery] = useState('')
 
   const individuals = Array.from(ontology?.individuals.values() || [])
+
+  // Debug logging when individuals change
+  useEffect(() => {
+    console.log('[IndividualList] Individuals updated:', {
+      count: individuals.length,
+      individuals: individuals.map(ind => ({ id: ind.id, label: ind.label, types: ind.types })),
+    })
+  }, [individuals])
 
   const filterIndividuals = () => {
     if (!searchQuery) {

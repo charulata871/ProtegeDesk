@@ -172,11 +172,12 @@ export function serializeToTurtle(ontology: Ontology): string {
  */
 export function serializeToOWLXML(ontology: Ontology): string {
   // Extract base URI from ontology ID for proper IRI resolution
-  const baseURI = ontology.id.endsWith('#') || ontology.id.endsWith('/')
-    ? ontology.id
-    : ontology.id.includes('#')
-      ? ontology.id.substring(0, ontology.id.lastIndexOf('#') + 1)
-      : ontology.id + '#'
+  const baseURI =
+    ontology.id.endsWith('#') || ontology.id.endsWith('/')
+      ? ontology.id
+      : ontology.id.includes('#')
+        ? ontology.id.substring(0, ontology.id.lastIndexOf('#') + 1)
+        : ontology.id + '#'
 
   let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rdf:RDF xmlns="http://example.org/ontology#"
@@ -277,24 +278,62 @@ export function serializeToOWLXML(ontology: Ontology): string {
  * Helper function to get attribute value with or without namespace prefix.
  * Required by W3C RDF/XML spec which allows both forms.
  */
-function getAttributeNS(element: Element | null, localName: string, namespace?: string): string | null {
-  if (!element) return null
+function getAttributeNS(
+  element: Element | null,
+  localName: string,
+  namespace?: string
+): string | null {
+  if (!element) {
+    return null
+  }
 
   // Try with namespace prefix first
-  const withPrefix = element.getAttribute(`rdf:${localName}`) || element.getAttribute(`owl:${localName}`)
-  if (withPrefix) return withPrefix
+  const withPrefix =
+    element.getAttribute(`rdf:${localName}`) || element.getAttribute(`owl:${localName}`)
+  if (withPrefix) {
+    return withPrefix
+  }
 
   // Try without prefix
   const withoutPrefix = element.getAttribute(localName)
-  if (withoutPrefix) return withoutPrefix
+  if (withoutPrefix) {
+    return withoutPrefix
+  }
 
   // Try with getAttributeNS if namespace provided
   if (namespace) {
     const nsValue = element.getAttributeNS(namespace, localName)
-    if (nsValue) return nsValue
+    if (nsValue) {
+      return nsValue
+    }
   }
 
   return null
+}
+
+/**
+ * Resolve a potentially relative IRI against a base URI.
+ * Per W3C RDF/XML spec, IRIs starting with # are relative to xml:base.
+ */
+function resolveIRI(iri: string, xmlBase: string): string {
+  if (!iri) {
+    return iri
+  }
+
+  // Already absolute
+  if (iri.startsWith('http://') || iri.startsWith('https://')) {
+    return iri
+  }
+
+  // Relative IRI starting with #
+  if (iri.startsWith('#')) {
+    // Remove trailing # from base if present
+    const base = xmlBase.endsWith('#') ? xmlBase.slice(0, -1) : xmlBase
+    return base + iri
+  }
+
+  // Other relative forms - just prepend base
+  return xmlBase + iri
 }
 
 /**
@@ -325,20 +364,25 @@ export function parseOWLXML(content: string): Ontology {
   const ontologyNode = xmlDoc.querySelector('Ontology, owl\\:Ontology')
 
   // Extract xml:base from rdf:RDF root element per RDF/XML spec
-  const xmlBase = rdfRoot?.getAttribute('xml:base') ||
-                  rdfRoot?.getAttributeNS('http://www.w3.org/XML/1998/namespace', 'base') ||
-                  ''
+  const xmlBase =
+    rdfRoot?.getAttribute('xml:base') ||
+    rdfRoot?.getAttributeNS('http://www.w3.org/XML/1998/namespace', 'base') ||
+    ''
 
-  const ontologyId = getAttributeNS(ontologyNode!, 'about', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#') ||
-                     xmlBase ||
-                     'http://example.org/ontology'
+  const ontologyId =
+    getAttributeNS(ontologyNode, 'about', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#') ||
+    xmlBase ||
+    'http://example.org/ontology'
 
-  const versionInfo = ontologyNode?.querySelector('versionInfo, owl\\:versionInfo')?.textContent || undefined
+  const versionInfo =
+    ontologyNode?.querySelector('versionInfo, owl\\:versionInfo')?.textContent || undefined
 
   // Parse owl:imports declarations per W3C OWL specification
   const importNodes = ontologyNode?.querySelectorAll('imports, owl\\:imports') || []
   const imports = Array.from(importNodes)
-    .map(node => getAttributeNS(node as Element, 'resource', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'))
+    .map(node =>
+      getAttributeNS(node as Element, 'resource', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#')
+    )
     .filter((imp): imp is string => imp !== null)
 
   // Parse classes with improved namespace handling
@@ -362,17 +406,23 @@ export function parseOWLXML(content: string): Ontology {
 
     const superClassNodes = node.querySelectorAll('subClassOf, rdfs\\:subClassOf')
     const superClasses = Array.from(superClassNodes)
-      .map(n => getAttributeNS(n as Element, 'resource', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'))
+      .map(n =>
+        getAttributeNS(n as Element, 'resource', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#')
+      )
       .filter((sc): sc is string => sc !== null)
 
     const disjointNodes = node.querySelectorAll('disjointWith, owl\\:disjointWith')
     const disjointWith = Array.from(disjointNodes)
-      .map(n => getAttributeNS(n as Element, 'resource', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'))
+      .map(n =>
+        getAttributeNS(n as Element, 'resource', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#')
+      )
       .filter((dw): dw is string => dw !== null)
 
     const equivalentNodes = node.querySelectorAll('equivalentClass, owl\\:equivalentClass')
     const equivalentTo = Array.from(equivalentNodes)
-      .map(n => getAttributeNS(n as Element, 'resource', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'))
+      .map(n =>
+        getAttributeNS(n as Element, 'resource', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#')
+      )
       .filter((eq): eq is string => eq !== null)
 
     classes.set(id, {
@@ -392,7 +442,7 @@ export function parseOWLXML(content: string): Ontology {
   const propertyTypes = [
     { name: 'ObjectProperty', internal: 'ObjectProperty' },
     { name: 'DatatypeProperty', internal: 'DataProperty' },
-    { name: 'AnnotationProperty', internal: 'AnnotationProperty' }
+    { name: 'AnnotationProperty', internal: 'AnnotationProperty' },
   ]
 
   propertyTypes.forEach(({ name: propType, internal: internalType }) => {
@@ -421,13 +471,19 @@ export function parseOWLXML(content: string): Ontology {
         description,
         type: internalType as 'ObjectProperty' | 'DataProperty' | 'AnnotationProperty',
         domain: Array.from(domainNodes)
-          .map(n => getAttributeNS(n as Element, 'resource', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'))
+          .map(n =>
+            getAttributeNS(n as Element, 'resource', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#')
+          )
           .filter((d): d is string => d !== null),
         range: Array.from(rangeNodes)
-          .map(n => getAttributeNS(n as Element, 'resource', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'))
+          .map(n =>
+            getAttributeNS(n as Element, 'resource', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#')
+          )
           .filter((r): r is string => r !== null),
         superProperties: Array.from(superPropNodes)
-          .map(n => getAttributeNS(n as Element, 'resource', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'))
+          .map(n =>
+            getAttributeNS(n as Element, 'resource', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#')
+          )
           .filter((sp): sp is string => sp !== null),
         characteristics: [],
         annotations: [],
@@ -442,10 +498,13 @@ export function parseOWLXML(content: string): Ontology {
   // 3. Elements with rdf:type pointing to a class
   const individualNodes = xmlDoc.querySelectorAll('NamedIndividual, owl\\:NamedIndividual')
   individualNodes.forEach(node => {
-    const id = getAttributeNS(node, 'about', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#')
-    if (!id) {
+    const rawId = getAttributeNS(node, 'about', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#')
+    if (!rawId) {
       return
     }
+
+    // Resolve relative IRIs against xml:base
+    const id = resolveIRI(rawId, xmlBase)
 
     const label =
       node.querySelector('label, rdfs\\:label')?.textContent ||
@@ -455,17 +514,38 @@ export function parseOWLXML(content: string): Ontology {
 
     const typeNodes = node.querySelectorAll('type, rdf\\:type')
     const types = Array.from(typeNodes)
-      .map(n => getAttributeNS(n as Element, 'resource', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'))
+      .map(n => {
+        const rawType = getAttributeNS(
+          n as Element,
+          'resource',
+          'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+        )
+        return rawType ? resolveIRI(rawType, xmlBase) : null
+      })
       .filter((t): t is string => t !== null)
 
     const sameAsNodes = node.querySelectorAll('sameAs, owl\\:sameAs')
     const sameAs = Array.from(sameAsNodes)
-      .map(n => getAttributeNS(n as Element, 'resource', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'))
+      .map(n => {
+        const rawSameAs = getAttributeNS(
+          n as Element,
+          'resource',
+          'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+        )
+        return rawSameAs ? resolveIRI(rawSameAs, xmlBase) : null
+      })
       .filter((sa): sa is string => sa !== null)
 
     const differentFromNodes = node.querySelectorAll('differentFrom, owl\\:differentFrom')
     const differentFrom = Array.from(differentFromNodes)
-      .map(n => getAttributeNS(n as Element, 'resource', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'))
+      .map(n => {
+        const rawDiff = getAttributeNS(
+          n as Element,
+          'resource',
+          'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+        )
+        return rawDiff ? resolveIRI(rawDiff, xmlBase) : null
+      })
       .filter((df): df is string => df !== null)
 
     individuals.set(id, {
@@ -484,25 +564,40 @@ export function parseOWLXML(content: string): Ontology {
   // This handles cases where individuals are declared as <ClassName rdf:about="...">
   const allElements = xmlDoc.querySelectorAll('[rdf\\:about], [about]')
   allElements.forEach(node => {
-    const id = getAttributeNS(node, 'about', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#')
-    if (!id) return
+    const rawId = getAttributeNS(node, 'about', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#')
+    if (!rawId) {
+      return
+    }
+
+    // Resolve relative IRIs against xml:base
+    const id = resolveIRI(rawId, xmlBase)
 
     // Skip if already processed
-    if (individuals.has(id) || classes.has(id) || properties.has(id)) return
+    if (individuals.has(id) || classes.has(id) || properties.has(id)) {
+      return
+    }
 
     // Check if this element has rdf:type or is a typed node
     const tagName = node.tagName
     const typeNodes = node.querySelectorAll('type, rdf\\:type')
     const types = Array.from(typeNodes)
-      .map(n => getAttributeNS(n as Element, 'resource', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'))
+      .map(n => {
+        const rawType = getAttributeNS(
+          n as Element,
+          'resource',
+          'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+        )
+        return rawType ? resolveIRI(rawType, xmlBase) : null
+      })
       .filter((t): t is string => t !== null)
 
     // If element has types or is not a known ontology construct, treat as individual
-    const isOntologyConstruct = tagName.includes('Ontology') ||
-                                 tagName.includes('Class') ||
-                                 tagName.includes('Property') ||
-                                 tagName === 'RDF' ||
-                                 tagName === 'rdf:RDF'
+    const isOntologyConstruct =
+      tagName.includes('Ontology') ||
+      tagName.includes('Class') ||
+      tagName.includes('Property') ||
+      tagName === 'RDF' ||
+      tagName === 'rdf:RDF'
 
     if (types.length > 0 || (!isOntologyConstruct && id)) {
       const label =
@@ -513,12 +608,26 @@ export function parseOWLXML(content: string): Ontology {
 
       const sameAsNodes = node.querySelectorAll('sameAs, owl\\:sameAs')
       const sameAs = Array.from(sameAsNodes)
-        .map(n => getAttributeNS(n as Element, 'resource', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'))
+        .map(n => {
+          const rawSameAs = getAttributeNS(
+            n as Element,
+            'resource',
+            'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+          )
+          return rawSameAs ? resolveIRI(rawSameAs, xmlBase) : null
+        })
         .filter((sa): sa is string => sa !== null)
 
       const differentFromNodes = node.querySelectorAll('differentFrom, owl\\:differentFrom')
       const differentFrom = Array.from(differentFromNodes)
-        .map(n => getAttributeNS(n as Element, 'resource', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#'))
+        .map(n => {
+          const rawDiff = getAttributeNS(
+            n as Element,
+            'resource',
+            'http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+          )
+          return rawDiff ? resolveIRI(rawDiff, xmlBase) : null
+        })
         .filter((df): df is string => df !== null)
 
       individuals.set(id, {
@@ -763,12 +872,22 @@ export function validateOntology(ontology: Ontology): string[] {
     }
     // Validate domain and range
     prop.domain.forEach(d => {
-      if (!d.startsWith('http') && !d.startsWith('owl:') && !d.startsWith('rdfs:') && !d.startsWith('xsd:')) {
+      if (
+        !d.startsWith('http') &&
+        !d.startsWith('owl:') &&
+        !d.startsWith('rdfs:') &&
+        !d.startsWith('xsd:')
+      ) {
         errors.push(`Property ${prop.name} has invalid domain: ${d}`)
       }
     })
     prop.range.forEach(r => {
-      if (!r.startsWith('http') && !r.startsWith('owl:') && !r.startsWith('rdfs:') && !r.startsWith('xsd:')) {
+      if (
+        !r.startsWith('http') &&
+        !r.startsWith('owl:') &&
+        !r.startsWith('rdfs:') &&
+        !r.startsWith('xsd:')
+      ) {
         errors.push(`Property ${prop.name} has invalid range: ${r}`)
       }
     })

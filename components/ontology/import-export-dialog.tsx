@@ -95,7 +95,12 @@ export function ImportExportDialog() {
         const trimmed = importData.trim()
         if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
           imported = parseFromJSONLD(importData)
-        } else if (trimmed.startsWith('<?xml') || trimmed.startsWith('<rdf:RDF') || trimmed.startsWith('<RDF') || trimmed.startsWith('<Ontology')) {
+        } else if (
+          trimmed.startsWith('<?xml') ||
+          trimmed.startsWith('<rdf:RDF') ||
+          trimmed.startsWith('<RDF') ||
+          trimmed.startsWith('<Ontology')
+        ) {
           imported = parseFromOWLXML(importData)
         } else if (trimmed.includes('@prefix') || trimmed.includes('@base')) {
           imported = parseFromTurtle(importData)
@@ -112,6 +117,15 @@ export function ImportExportDialog() {
 
       // Validate the imported ontology per W3C RDF/OWL standards
       const validationErrors = validateOntology(imported)
+
+      // Debug logging for imported ontology stats
+      console.log('[Import] Ontology stats:', {
+        name: imported.name,
+        classes: imported.classes.size,
+        properties: imported.properties.size,
+        individuals: imported.individuals.size,
+      })
+
       if (validationErrors.length > 0) {
         console.warn('[Import] Validation warnings:', validationErrors)
         toast({
@@ -132,7 +146,8 @@ export function ImportExportDialog() {
       console.error('[Import] Error:', error)
       toast({
         title: 'Import failed',
-        description: error instanceof Error ? error.message : 'Invalid format or non-compliant RDF/XML',
+        description:
+          error instanceof Error ? error.message : 'Invalid format or non-compliant RDF/XML',
         variant: 'destructive',
       })
     }

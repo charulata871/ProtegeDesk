@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useOntology } from '@/lib/ontology/context'
 import { Box, Link2, User } from 'lucide-react'
@@ -7,13 +8,25 @@ import { Box, Link2, User } from 'lucide-react'
 export function OntologyStats() {
   const { ontology } = useOntology()
 
+  const classCount = ontology?.classes.size ?? 0
+  const propertyCount = ontology?.properties.size ?? 0
+  const individualCount = ontology?.individuals.size ?? 0
+
+  // Debug logging when ontology changes
+  useEffect(() => {
+    if (ontology) {
+      console.log('[OntologyStats] Ontology updated:', {
+        name: ontology.name,
+        classes: classCount,
+        properties: propertyCount,
+        individuals: individualCount,
+      })
+    }
+  }, [ontology, classCount, propertyCount, individualCount])
+
   if (!ontology) {
     return null
   }
-
-  const classCount = ontology.classes.size
-  const propertyCount = ontology.properties.size
-  const individualCount = ontology.individuals.size
 
   return (
     <div className="space-y-3">
