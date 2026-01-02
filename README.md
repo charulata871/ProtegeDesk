@@ -144,7 +144,7 @@ npm start
 
 ## 🎯 Project Status
 
-### Current Version: 0.1.0 (MVP Development)
+### Current Version: 0.2.0 (MVP Development)
 
 **Development Progress**:
 - [x] Sprint 0: Project Setup ✅

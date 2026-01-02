@@ -3,9 +3,14 @@
 import { useOntology } from '@/lib/ontology/context'
 import { ClassDetails } from './class-details'
 import { PropertyDetails } from './property-details'
+import { IndividualDetails } from './individual-details'
 
 export function DetailsPanel() {
-  const { selectedClass, selectedProperty } = useOntology()
+  const { selectedClass, selectedProperty, selectedIndividual } = useOntology()
+
+  if (selectedIndividual) {
+    return <IndividualDetails />
+  }
 
   if (selectedProperty) {
     return <PropertyDetails />

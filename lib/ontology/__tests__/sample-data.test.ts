@@ -255,8 +255,11 @@ describe('Sample Data Generator', () => {
     it('should create all expected individuals', () => {
       const ontology = createSampleOntology()
 
-      expect(ontology.individuals.size).toBe(1)
+      expect(ontology.individuals.size).toBe(4)
       expect(ontology.individuals.has('john_doe')).toBe(true)
+      expect(ontology.individuals.has('jane_smith')).toBe(true)
+      expect(ontology.individuals.has('acme_corp')).toBe(true)
+      expect(ontology.individuals.has('alice_johnson')).toBe(true)
     })
 
     it('should create John Doe individual', () => {
@@ -279,30 +282,38 @@ describe('Sample Data Generator', () => {
       const ontology = createSampleOntology()
       const john = ontology.individuals.get('john_doe')
 
-      expect(john?.propertyAssertions).toHaveLength(2)
+      expect(john?.propertyAssertions).toHaveLength(3)
       expect(john?.propertyAssertions).toContainEqual({
         property: 'hasName',
         value: 'John Doe',
+        datatype: 'xsd:string',
       })
       expect(john?.propertyAssertions).toContainEqual({
         property: 'hasAge',
         value: 30,
+        datatype: 'xsd:integer',
+      })
+      expect(john?.propertyAssertions).toContainEqual({
+        property: 'worksFor',
+        value: 'acme_corp',
       })
     })
 
-    it('should initialize John Doe with empty sameAs and differentFrom', () => {
+    it('should initialize John Doe with sameAs and differentFrom', () => {
       const ontology = createSampleOntology()
       const john = ontology.individuals.get('john_doe')
 
       expect(john?.sameAs).toEqual([])
-      expect(john?.differentFrom).toEqual([])
+      expect(john?.differentFrom).toEqual(['jane_smith'])
     })
 
-    it('should initialize John Doe with empty annotations', () => {
+    it('should initialize John Doe with annotations', () => {
       const ontology = createSampleOntology()
       const john = ontology.individuals.get('john_doe')
 
-      expect(john?.annotations).toEqual([])
+      expect(john?.annotations).toEqual([
+        { property: 'rdfs:comment', value: 'Software engineer at ACME Corp' },
+      ])
     })
   })
 

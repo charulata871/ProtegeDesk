@@ -28,8 +28,10 @@ type OntologyContextType = {
   addIndividual: (individual: Individual) => void
   updateClass: (classId: string, updates: Partial<OntologyClass>) => void
   updateProperty: (propertyId: string, updates: Partial<OntologyProperty>) => void
+  updateIndividual: (individualId: string, updates: Partial<Individual>) => void
   deleteClass: (classId: string) => void
   deleteProperty: (propertyId: string) => void
+  deleteIndividual: (individualId: string) => void
 }
 
 /**
@@ -205,6 +207,31 @@ export function OntologyProvider({ children }: { children: React.ReactNode }) {
     })
   }, [])
 
+  const updateIndividual = useCallback((individualId: string, updates: Partial<Individual>) => {
+    setOntology(prev => {
+      if (!prev) {
+        return prev
+      }
+      const individuals = new Map(prev.individuals)
+      const existing = individuals.get(individualId)
+      if (existing) {
+        individuals.set(individualId, { ...existing, ...updates })
+      }
+      return { ...prev, individuals }
+    })
+  }, [])
+
+  const deleteIndividual = useCallback((individualId: string) => {
+    setOntology(prev => {
+      if (!prev) {
+        return prev
+      }
+      const individuals = new Map(prev.individuals)
+      individuals.delete(individualId)
+      return { ...prev, individuals }
+    })
+  }, [])
+
   return (
     <OntologyContext.Provider
       value={{
@@ -221,8 +248,10 @@ export function OntologyProvider({ children }: { children: React.ReactNode }) {
         addIndividual,
         updateClass,
         updateProperty,
+        updateIndividual,
         deleteClass,
         deleteProperty,
+        deleteIndividual,
       }}
     >
       {children}

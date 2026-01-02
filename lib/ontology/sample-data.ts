@@ -107,8 +107,52 @@ export function createSampleOntology(): Ontology {
     label: 'John Doe',
     types: ['Employee'],
     propertyAssertions: [
-      { property: 'hasName', value: 'John Doe' },
-      { property: 'hasAge', value: 30 },
+      { property: 'hasName', value: 'John Doe', datatype: 'xsd:string' },
+      { property: 'hasAge', value: 30, datatype: 'xsd:integer' },
+      { property: 'worksFor', value: 'acme_corp' },
+    ],
+    annotations: [{ property: 'rdfs:comment', value: 'Software engineer at ACME Corp' }],
+    sameAs: [],
+    differentFrom: ['jane_smith'],
+  }
+
+  const jane: Individual = {
+    id: 'jane_smith',
+    name: 'jane_smith',
+    label: 'Jane Smith',
+    types: ['Employee'],
+    propertyAssertions: [
+      { property: 'hasName', value: 'Jane Smith', datatype: 'xsd:string' },
+      { property: 'hasAge', value: 28, datatype: 'xsd:integer' },
+      { property: 'worksFor', value: 'acme_corp' },
+    ],
+    annotations: [{ property: 'rdfs:comment', value: 'Product manager at ACME Corp' }],
+    sameAs: [],
+    differentFrom: ['john_doe'],
+  }
+
+  const acmeCorp: Individual = {
+    id: 'acme_corp',
+    name: 'acme_corp',
+    label: 'ACME Corporation',
+    types: ['Organization'],
+    propertyAssertions: [
+      { property: 'hasName', value: 'ACME Corporation', datatype: 'xsd:string' },
+      { property: 'foundedIn', value: 1995, datatype: 'xsd:integer' },
+    ],
+    annotations: [{ property: 'rdfs:comment', value: 'A technology company' }],
+    sameAs: [],
+    differentFrom: [],
+  }
+
+  const alice: Individual = {
+    id: 'alice_johnson',
+    name: 'alice_johnson',
+    label: 'Alice Johnson',
+    types: ['Person'],
+    propertyAssertions: [
+      { property: 'hasName', value: 'Alice Johnson', datatype: 'xsd:string' },
+      { property: 'hasAge', value: 35, datatype: 'xsd:integer' },
     ],
     annotations: [],
     sameAs: [],
@@ -116,6 +160,9 @@ export function createSampleOntology(): Ontology {
   }
 
   individuals.set(john.id, john)
+  individuals.set(jane.id, jane)
+  individuals.set(acmeCorp.id, acmeCorp)
+  individuals.set(alice.id, alice)
 
   return {
     id: 'http://example.org/ontology',

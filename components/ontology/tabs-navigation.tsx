@@ -3,6 +3,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { ClassTree } from './class-tree'
 import { PropertyList } from './property-list'
+import { IndividualList } from './individual-list'
 
 export function TabsNavigation() {
   return (
@@ -28,9 +29,7 @@ export function TabsNavigation() {
       </TabsContent>
 
       <TabsContent value="individuals" className="mt-0 flex-1 overflow-hidden">
-        <div className="text-muted-foreground flex h-full items-center justify-center text-sm">
-          Individuals view coming soon...
-        </div>
+        <IndividualList />
       </TabsContent>
     </Tabs>
   )
