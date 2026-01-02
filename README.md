@@ -133,12 +133,12 @@ npm start
 
 ## 📚 Documentation
 
-- [User Guide](docs/user-guide.md) - Complete user documentation
-- [Tutorial](docs/tutorial.md) - Step-by-step learning path
-- [API Reference](docs/api-reference.md) - Developer documentation
-- [Architecture](docs/architecture.md) - System design and structure
+- [User Guide](https://github.com/aadorian/ProtegeDesk/wiki/User-Guide) - Complete user documentation
+- [Tutorial](https://github.com/aadorian/ProtegeDesk/wiki/Tutorial) - Step-by-step learning path
+- [API Reference](https://github.com/aadorian/ProtegeDesk/wiki/API-Reference) - Developer documentation
+- [Architecture](https://github.com/aadorian/ProtegeDesk/wiki/Architecture) - System design and structure
 - [Contributing](CONTRIBUTING.md) - How to contribute
-- [FAQ](docs/faq.md) - Frequently asked questions
+- [FAQ](https://github.com/aadorian/ProtegeDesk/wiki/FAQ) - Frequently asked questions
 
 ---
 
