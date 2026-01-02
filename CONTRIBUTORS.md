@@ -24,7 +24,7 @@ We appreciate all contributions to this project, big or small!
   - Enhanced code quality and maintainability
   - Repository: https://github.com/charulata871/ProtegeDesk
 
-- **Nachu** ([@maripadilla](mailto:maripadilla@Maris-MacBook-Air.local))
+- **Nachu** 
   - Bug fixes and syntax error resolution
   - Repository maintenance and integration
 
