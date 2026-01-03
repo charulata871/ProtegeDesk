@@ -7,6 +7,35 @@ import { useOntology } from '@/lib/ontology/context'
 import { Button } from '@/components/ui/button'
 import { ZoomIn, ZoomOut, Maximize, Download, RotateCcw } from 'lucide-react'
 
+import {
+  REPULSION_STRENGTH,
+  ATTRACTION_STRENGTH,
+  DAMPING,
+  CLASS_LAYOUT_RADIUS,
+  PROPERTY_LAYOUT_RADIUS,
+  INDIVIDUAL_LAYOUT_RADIUS,
+  INDIVIDUAL_X_OFFSET,
+  CLASS_NODE_RADIUS,
+  PROPERTY_NODE_RADIUS,
+  INDIVIDUAL_NODE_RADIUS,
+  MAX_SIMULATION_ITERATIONS,
+  MIN_ZOOM,
+  MAX_ZOOM,
+  WHEEL_ZOOM_IN_FACTOR,
+  WHEEL_ZOOM_OUT_FACTOR,
+  ZOOM_IN_FACTOR,
+  ZOOM_OUT_FACTOR,
+  SUBCLASS_EDGE_WIDTH,
+  DEFAULT_EDGE_WIDTH,
+  EDGE_DASH_SIZE,
+  EDGE_ARROW_LENGTH,
+  EDGE_ARROW_ANGLE,
+  SELECTION_RADIUS_PADDING,
+  DEFAULT_ZOOM,
+  FIT_VIEW_PADDING,
+  MAX_FIT_ZOOM,
+} from '../../lib/constants'
+
 type Node = {
   id: string
   x: number
@@ -28,17 +57,13 @@ type Edge = {
 }
 
 function applyForces(nodes: Node[], edges: Edge[]) {
-  const repulsionStrength = 3000
-  const attractionStrength = 0.01
-  const damping = 0.8
-
   // Repulsion between all nodes
   for (let i = 0; i < nodes.length; i++) {
     for (let j = i + 1; j < nodes.length; j++) {
       const dx = nodes[j].x - nodes[i].x
       const dy = nodes[j].y - nodes[i].y
       const distance = Math.sqrt(dx * dx + dy * dy) || 1
-      const force = repulsionStrength / (distance * distance)
+      const force = REPULSION_STRENGTH / (distance * distance)
 
       const fx = (dx / distance) * force
       const fy = (dy / distance) * force
@@ -60,7 +85,7 @@ function applyForces(nodes: Node[], edges: Edge[]) {
       const dy = toNode.y - fromNode.y
       const distance = Math.sqrt(dx * dx + dy * dy) || 1
 
-      const force = distance * attractionStrength
+      const force = distance * ATTRACTION_STRENGTH
       const fx = (dx / distance) * force
       const fy = (dy / distance) * force
 
@@ -75,8 +100,8 @@ function applyForces(nodes: Node[], edges: Edge[]) {
   nodes.forEach(node => {
     node.x += node.vx
     node.y += node.vy
-    node.vx *= damping
-    node.vy *= damping
+    node.vx *= DAMPING
+    node.vy *= DAMPING
   })
 }
 
@@ -85,7 +110,7 @@ export function GraphView() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const animationRef = useRef<number | null>(null)
-  const [zoom, setZoom] = useState(1)
+  const [zoom, setZoom] = useState(DEFAULT_ZOOM)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
@@ -106,16 +131,15 @@ export function GraphView() {
     // Add class nodes
     Array.from(ontology.classes.values()).forEach((owlClass, index) => {
       const angle = (index / ontology.classes.size) * 2 * Math.PI
-      const radius = 250
       graphNodes.push({
         id: owlClass.id,
-        x: Math.cos(angle) * radius,
-        y: Math.sin(angle) * radius,
+        x: Math.cos(angle) * CLASS_LAYOUT_RADIUS,
+        y: Math.sin(angle) * CLASS_LAYOUT_RADIUS,
         vx: 0,
         vy: 0,
         label: owlClass.label || owlClass.name,
         type: 'class',
-        radius: 35,
+        radius: CLASS_NODE_RADIUS,
         color: 'rgb(147, 112, 219)',
       })
 
@@ -135,7 +159,6 @@ export function GraphView() {
 
     Array.from(ontology.properties.values()).forEach((prop, index) => {
       const angle = (index / ontology.properties.size) * 2 * Math.PI + Math.PI
-      const radius = 150
       const color =
         prop.type === 'ObjectProperty'
           ? 'rgb(99, 179, 237)'
@@ -145,13 +168,13 @@ export function GraphView() {
 
       graphNodes.push({
         id: prop.id,
-        x: Math.cos(angle) * radius,
-        y: Math.sin(angle) * radius,
+        x: Math.cos(angle) * PROPERTY_LAYOUT_RADIUS,
+        y: Math.sin(angle) * PROPERTY_LAYOUT_RADIUS,
         vx: 0,
         vy: 0,
         label: prop.label || prop.name,
         type: 'property',
-        radius: 28,
+        radius: PROPERTY_NODE_RADIUS,
         color: color,
       })
 
@@ -169,16 +192,15 @@ export function GraphView() {
 
     Array.from(ontology.individuals.values()).forEach((individual, index) => {
       const angle = (index / ontology.individuals.size) * 2 * Math.PI
-      const radius = 100
       graphNodes.push({
         id: individual.id,
-        x: Math.cos(angle) * radius + 300,
-        y: Math.sin(angle) * radius,
+        x: Math.cos(angle) * INDIVIDUAL_LAYOUT_RADIUS + INDIVIDUAL_X_OFFSET,
+        y: Math.sin(angle) * INDIVIDUAL_LAYOUT_RADIUS,
         vx: 0,
         vy: 0,
         label: individual.label || individual.name,
         type: 'individual',
-        radius: 25,
+        radius: INDIVIDUAL_NODE_RADIUS,
         color: 'rgb(244, 143, 177)',
       })
 
@@ -205,10 +227,9 @@ export function GraphView() {
     }
 
     let iterations = 0
-    const maxIterations = 300
 
     const animate = () => {
-      if (iterations < maxIterations) {
+      if (iterations < MAX_SIMULATION_ITERATIONS) {
         setNodes(prevNodes => {
           const newNodes = prevNodes.map(n => ({ ...n }))
           applyForces(newNodes, edges)
@@ -269,9 +290,9 @@ export function GraphView() {
         ctx.moveTo(fromNode.x, fromNode.y)
         ctx.lineTo(toNode.x, toNode.y)
         ctx.strokeStyle = edge.color
-        ctx.lineWidth = edge.type === 'subclass' ? 2.5 : 1.5
+        ctx.lineWidth = edge.type === 'subclass' ? SUBCLASS_EDGE_WIDTH : DEFAULT_EDGE_WIDTH
         if (edge.type === 'property') {
-          ctx.setLineDash([5, 5])
+          ctx.setLineDash([EDGE_DASH_SIZE, EDGE_DASH_SIZE])
         } else {
           ctx.setLineDash([])
         }
@@ -279,20 +300,19 @@ export function GraphView() {
 
         // Draw arrow
         const angle = Math.atan2(toNode.y - fromNode.y, toNode.x - fromNode.x)
-        const arrowLength = 12
         const arrowX = toNode.x - Math.cos(angle) * (toNode.radius + 5)
         const arrowY = toNode.y - Math.sin(angle) * (toNode.radius + 5)
 
         ctx.beginPath()
         ctx.moveTo(arrowX, arrowY)
         ctx.lineTo(
-          arrowX - arrowLength * Math.cos(angle - Math.PI / 6),
-          arrowY - arrowLength * Math.sin(angle - Math.PI / 6)
+          arrowX - EDGE_ARROW_LENGTH * Math.cos(angle - EDGE_ARROW_ANGLE),
+          arrowY - EDGE_ARROW_LENGTH * Math.sin(angle - EDGE_ARROW_ANGLE)
         )
         ctx.moveTo(arrowX, arrowY)
         ctx.lineTo(
-          arrowX - arrowLength * Math.cos(angle + Math.PI / 6),
-          arrowY - arrowLength * Math.sin(angle + Math.PI / 6)
+          arrowX - EDGE_ARROW_LENGTH * Math.cos(angle + EDGE_ARROW_ANGLE),
+          arrowY - EDGE_ARROW_LENGTH * Math.sin(angle + EDGE_ARROW_ANGLE)
         )
         ctx.strokeStyle = edge.color
         ctx.lineWidth = 2
@@ -307,7 +327,7 @@ export function GraphView() {
       // Draw selection highlight
       if (isSelected) {
         ctx.beginPath()
-        ctx.arc(node.x, node.y, node.radius + 6, 0, 2 * Math.PI)
+        ctx.arc(node.x, node.y, node.radius + SELECTION_RADIUS_PADDING, 0, 2 * Math.PI)
         ctx.strokeStyle = 'rgb(255, 215, 0)'
         ctx.lineWidth = 3
         ctx.stroke()
@@ -319,7 +339,7 @@ export function GraphView() {
       ctx.fillStyle = node.color
       ctx.fill()
       ctx.strokeStyle = isSelected ? 'rgb(255, 215, 0)' : 'rgba(255, 255, 255, 0.3)'
-      ctx.lineWidth = isSelected ? 2.5 : 2
+      ctx.lineWidth = isSelected ? SUBCLASS_EDGE_WIDTH : 2
       ctx.stroke()
 
       // Draw label
@@ -345,8 +365,8 @@ export function GraphView() {
 
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault()
-    const delta = e.deltaY > 0 ? 0.9 : 1.1
-    setZoom(prev => Math.max(0.05, Math.min(5, prev * delta)))
+    const delta = e.deltaY > 0 ? WHEEL_ZOOM_OUT_FACTOR : WHEEL_ZOOM_IN_FACTOR
+    setZoom(prev => Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, prev * delta)))
   }
 
   // Handle keyboard shortcuts
@@ -359,11 +379,11 @@ export function GraphView() {
       switch (e.key) {
         case '+':
         case '=':
-          setZoom(z => Math.min(5, z * 1.2))
+          setZoom(z => Math.min(MAX_ZOOM, z * ZOOM_IN_FACTOR))
           break
         case '-':
         case '_':
-          setZoom(z => Math.max(0.05, z * 0.8))
+          setZoom(z => Math.max(MIN_ZOOM, z * ZOOM_OUT_FACTOR))
           break
         case '0':
           resetView()
@@ -449,9 +469,8 @@ export function GraphView() {
       maxY = Math.max(maxY, node.y + node.radius)
     })
 
-    const padding = 100
-    const contentWidth = maxX - minX + padding
-    const contentHeight = maxY - minY + padding
+    const contentWidth = maxX - minX + FIT_VIEW_PADDING
+    const contentHeight = maxY - minY + FIT_VIEW_PADDING
 
     const rect = canvasRef.current.getBoundingClientRect()
     const containerWidth = rect.width
@@ -460,7 +479,7 @@ export function GraphView() {
     const newZoom = Math.min(
       containerWidth / contentWidth,
       containerHeight / contentHeight,
-      2 // Max zoom factor
+      MAX_FIT_ZOOM
     )
 
     setZoom(newZoom)
@@ -500,7 +519,7 @@ export function GraphView() {
             variant="ghost"
             size="icon"
             className="hover:bg-accent h-8 w-8"
-            onClick={() => setZoom(z => Math.min(5, z * 1.2))}
+            onClick={() => setZoom(z => Math.min(MAX_ZOOM, z * ZOOM_IN_FACTOR))}
             title="Zoom In (+)"
           >
             <ZoomIn className="h-4 w-4" />
@@ -512,7 +531,7 @@ export function GraphView() {
             variant="ghost"
             size="icon"
             className="hover:bg-accent h-8 w-8"
-            onClick={() => setZoom(z => Math.max(0.05, z * 0.8))}
+            onClick={() => setZoom(z => Math.max(MIN_ZOOM, z * ZOOM_OUT_FACTOR))}
             title="Zoom Out (-)"
           >
             <ZoomOut className="h-4 w-4" />
