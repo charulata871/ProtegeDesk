@@ -32,10 +32,12 @@ export function SPARQLQuery() {
   const [result, setResult] = useState<SPARQLResult | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [isExecuting, setIsExecuting] = useState(false)
+  const [activeTab, setActiveTab] = useState('editor')
 
   const executeQuery = () => {
     if (!ontology) {
       setError('No ontology loaded')
+      toast.error('No ontology loaded')
       return
     }
 
@@ -46,10 +48,13 @@ export function SPARQLQuery() {
       const queryResult = executeSPARQLQuery(query, ontology)
       setResult(queryResult)
       toast.success(`Query executed: ${queryResult.results.bindings.length} results`)
+      // Automatically switch to Results tab on successful execution
+      setActiveTab('results')
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
       setError(errorMessage)
       toast.error('Query execution failed')
+      // Keep user on editor tab to see and fix the error
     } finally {
       setIsExecuting(false)
     }
@@ -61,6 +66,7 @@ export function SPARQLQuery() {
       setQuery(sample.query)
       setResult(null)
       setError(null)
+      setActiveTab('editor') // Switch to editor when loading a new query
       toast.info(`Loaded: ${sample.name}`)
     }
   }
@@ -122,31 +128,52 @@ export function SPARQLQuery() {
       </div>
 
       <Card className="flex-1 overflow-hidden">
-        <Tabs defaultValue="editor" className="flex h-full flex-col">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex h-full flex-col">
           <div className="border-b px-4 pt-4">
             <TabsList>
               <TabsTrigger value="editor">Query Editor</TabsTrigger>
-              <TabsTrigger value="results">Results</TabsTrigger>
+              <TabsTrigger value="results">
+                Results
+                {result && (
+                  <span className="bg-primary text-primary-foreground ml-2 rounded-full px-2 py-0.5 text-xs">
+                    {result.results.bindings.length}
+                  </span>
+                )}
+              </TabsTrigger>
             </TabsList>
           </div>
 
           <TabsContent value="editor" className="flex-1 overflow-hidden p-4">
             <div className="flex h-full flex-col gap-3">
-              <div className="flex items-center gap-2">
-                <Button onClick={executeQuery} disabled={isExecuting || !ontology} size="sm">
-                  <Play className="mr-2 h-4 w-4" />
-                  {isExecuting ? 'Executing...' : 'Execute Query'}
-                </Button>
-                <Button onClick={copyQuery} variant="outline" size="sm">
-                  <Copy className="mr-2 h-4 w-4" />
-                  Copy
-                </Button>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Button onClick={executeQuery} disabled={isExecuting || !ontology} size="sm">
+                    <Play className="mr-2 h-4 w-4" />
+                    {isExecuting ? 'Executing...' : 'Execute Query'}
+                  </Button>
+                  <Button onClick={copyQuery} variant="outline" size="sm">
+                    <Copy className="mr-2 h-4 w-4" />
+                    Copy
+                  </Button>
+                </div>
+                <p className="text-muted-foreground text-xs">
+                  Press{' '}
+                  <kbd className="bg-muted rounded border px-1.5 py-0.5 text-xs">Ctrl</kbd> +{' '}
+                  <kbd className="bg-muted rounded border px-1.5 py-0.5 text-xs">Enter</kbd> to
+                  execute
+                </p>
               </div>
 
               <div className="flex-1">
                 <Textarea
                   value={query}
                   onChange={e => setQuery(e.target.value)}
+                  onKeyDown={e => {
+                    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                      e.preventDefault()
+                      executeQuery()
+                    }
+                  }}
                   placeholder="Enter SPARQL query..."
                   className="font-mono h-full resize-none text-sm"
                   spellCheck={false}
@@ -166,12 +193,39 @@ export function SPARQLQuery() {
           </TabsContent>
 
           <TabsContent value="results" className="flex-1 overflow-hidden p-4">
+            {error && (
+              <div className="bg-destructive/10 text-destructive mb-3 flex items-start gap-2 rounded-md border border-red-200 p-3">
+                <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                <div className="flex-1">
+                  <p className="text-sm font-medium">Query Error</p>
+                  <p className="text-xs">{error}</p>
+                  <Button
+                    onClick={() => setActiveTab('editor')}
+                    variant="link"
+                    size="sm"
+                    className="text-destructive mt-1 h-auto p-0 text-xs underline"
+                  >
+                    Back to Editor
+                  </Button>
+                </div>
+              </div>
+            )}
             {result ? (
               <div className="flex h-full flex-col gap-3">
                 <div className="flex items-center justify-between">
-                  <p className="text-muted-foreground text-sm">
-                    {result.results.bindings.length} result(s) found
-                  </p>
+                  <div className="flex items-center gap-3">
+                    <p className="text-muted-foreground text-sm">
+                      {result.results.bindings.length} result(s) found
+                    </p>
+                    <Button
+                      onClick={() => setActiveTab('editor')}
+                      variant="ghost"
+                      size="sm"
+                      className="h-7"
+                    >
+                      Edit Query
+                    </Button>
+                  </div>
                   <Button onClick={downloadResults} variant="outline" size="sm">
                     <Download className="mr-2 h-4 w-4" />
                     Download JSON
