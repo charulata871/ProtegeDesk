@@ -41,15 +41,14 @@ A next-generation, web-based ontology engineering platform built with TypeScript
 
 ## 🛠️ Technology Stack
 
-- **Frontend**: Next.js 14, React 18, TypeScript 5
-- **Editors**: Monaco Editor with Tree-sitter grammar
-- **Visualization**: React Flow (XyFlow) with ELK.js layout
-- **State Management**: Zustand with Immer
-- **Styling**: Tailwind CSS, Shadcn/ui
-- **Parsing**: N3.js for RDF/OWL
-- **AI Integration**: Vercel AI SDK (OpenAI, Anthropic)
-- **Reasoning**: EYE-JS (WebAssembly) + optional server-side
-- **Testing**: Vitest, React Testing Library, Playwright
+- **Frontend**: Next.js 16, React 19, TypeScript 5
+- **Styling**: Tailwind CSS, Shadcn/ui, Radix UI
+- **State Management**: React Context API
+- **Ontology Logic**: Custom HermiT-inspired reasoner
+- **Testing**: Jest, React Testing Library, ts-jest
+- **Form Handling**: React Hook Form, Zod
+- **Charts**: Recharts
+- **Icons**: Lucide React
 
 ---
 
@@ -134,18 +133,18 @@ npm start
 
 ## 📚 Documentation
 
-- [User Guide](docs/user-guide.md) - Complete user documentation
-- [Tutorial](docs/tutorial.md) - Step-by-step learning path
-- [API Reference](docs/api-reference.md) - Developer documentation
-- [Architecture](docs/architecture.md) - System design and structure
+- [User Guide](https://github.com/aadorian/ProtegeDesk/wiki/User-Guide) - Complete user documentation
+- [Tutorial](https://github.com/aadorian/ProtegeDesk/wiki/Tutorial) - Step-by-step learning path
+- [API Reference](https://github.com/aadorian/ProtegeDesk/wiki/API-Reference) - Developer documentation
+- [Architecture](https://github.com/aadorian/ProtegeDesk/wiki/Architecture) - System design and structure
 - [Contributing](CONTRIBUTING.md) - How to contribute
-- [FAQ](docs/faq.md) - Frequently asked questions
+- [FAQ](https://github.com/aadorian/ProtegeDesk/wiki/FAQ) - Frequently asked questions
 
 ---
 
 ## 🎯 Project Status
 
-### Current Version: 0.1.0 (MVP Development)
+### Current Version: 0.2.0 (MVP Development)
 
 **Development Progress**:
 - [x] Sprint 0: Project Setup ✅
@@ -212,21 +211,49 @@ npm run validate
 
 ## 🧪 Testing
 
+Logic-focused unit testing with Jest and TypeScript. Tests concentrate on business logic, algorithms, and data transformations.
+
+### Running Tests
+
 ```bash
-# Run all tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run E2E tests
-npm run test:e2e
-
-# Generate coverage report
-npm run test:coverage
+npm test              # Run all tests
+npm run test:watch    # Watch mode
+npm run test:coverage # With coverage
+npm run test:ci       # CI mode
 ```
 
-**Current Coverage**: 80%+ (target)
+### Test Results
+
+- **130 tests** passing in ~1.3 seconds
+- **6 test suites** covering core logic modules
+- **95%+** coverage on tested modules
+
+### What's Tested
+
+- ⚙️ **Ontology reasoning** - Consistency, inference, validation (31 tests)
+- 🔄 **Data serialization** - JSON-LD, Turtle, OWL/XML (43 tests)
+- 📊 **State management** - Context operations, CRUD (23 tests)
+- 🏗️ **Data generation** - Sample data, validation (50 tests)
+- 🪝 **React hooks** - Toast management, lifecycle (26 tests)
+- 🛠️ **Utilities** - Helper functions (7 tests)
+
+### Example
+
+```typescript
+describe('HermiTReasoner', () => {
+  it('should detect circular dependencies', () => {
+    const ontology = createOntologyWithCircularRefs()
+    const reasoner = new HermiTReasoner(ontology)
+    const result = reasoner.reason()
+
+    expect(result.errors).toContainEqual(
+      expect.objectContaining({ type: 'circular' })
+    )
+  })
+})
+```
+
+See [TESTING.md](TESTING.md) for detailed documentation.
 
 ---
 
@@ -238,11 +265,46 @@ npm run test:coverage
 | `npm run build` | Create production build |
 | `npm start` | Start production server |
 | `npm test` | Run unit tests |
-| `npm run test:e2e` | Run E2E tests |
+| `npm run test:watch` | Run tests in watch mode |
+| `npm run test:coverage` | Run tests with coverage report |
+| `npm run test:ci` | Run tests in CI mode |
 | `npm run lint` | Run ESLint |
+| `npm run lint:fix` | Auto-fix linting issues |
 | `npm run format` | Format code with Prettier |
-| `npm run type-check` | Run TypeScript compiler check |
-| `npm run validate` | Run all checks (lint, type-check, test) |
+| `npm run type-check` | Run TypeScript type checking |
+| `npm run validate` | Run all checks (type + lint + format + test) |
+
+---
+
+## 🎨 Code Quality & Linting
+
+Professional code quality setup with ESLint 9 and Prettier.
+
+### Quick Commands
+
+```bash
+npm run lint        # Check for issues
+npm run lint:fix    # Auto-fix issues
+npm run format      # Format code
+npm run validate    # Run all checks
+```
+
+### Features
+
+- ✅ **ESLint 9** with flat config format
+- ✅ **TypeScript** strict rules
+- ✅ **React** and hooks enforcement
+- ✅ **Prettier** with Tailwind CSS class sorting
+- ✅ **Accessibility** rules (jsx-a11y)
+- ✅ **Auto-fix** for most issues
+
+### Configuration
+
+- [eslint.config.mjs](eslint.config.mjs) - ESLint configuration
+- [.prettierrc](.prettierrc) - Prettier formatting rules
+- [LINTING.md](LINTING.md) - Complete documentation
+
+See [LINTING.md](LINTING.md) for detailed configuration and IDE setup.
 
 ---
 
@@ -261,14 +323,38 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 👥 Team
+## 👥 Team & Contributors
 
-**Development Team**:
-- Developer 1: Frontend Lead (UI/UX)
-- Developer 2: Backend/Integration Lead
-- Developer 3: AI/Reasoning Specialist
+### Core Team
 
-**Contributors**: See [CONTRIBUTORS.md](CONTRIBUTORS.md)
+**Project Lead**: Ale ([@aadorian](https://github.com/aadorian))
+- Project architecture and leadership
+- Cursor AI development environment configuration
+- Comprehensive development guidelines documentation
+- Hydration error fixes and core improvements
+
+### Contributors
+
+- **SIVA** ([@NANI-31](https://github.com/NANI-31))
+  - Enhanced graph visualization with zoom controls
+  - Breadcrumb navigation implementation
+  - Copy IRI button for entity cards
+
+- **charulata871** ([@charulata871](https://github.com/charulata871))
+  - Code refactoring and improved variable naming
+  - ClassDetails component refactoring
+  - Enhanced code quality and maintainability
+
+- **ParthP511** ([@ParthP511](https://github.com/ParthP511))
+  - Comprehensive inline documentation comments
+  - Documented reasoning logic in core modules
+
+- **Nachu**
+  - Professional ESLint and Prettier configuration setup
+  - Comprehensive logic-focused unit testing infrastructure (130 tests)
+  - Bug fixes and repository maintenance
+
+See [CONTRIBUTORS.md](CONTRIBUTORS.md) for the complete list and detailed contribution information.
 
 ---
 
