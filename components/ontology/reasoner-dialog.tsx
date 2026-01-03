@@ -16,7 +16,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Brain, CheckCircle2, XCircle, AlertTriangle, Clock, Loader2 } from 'lucide-react'
-
+import { REASONER_DIALOG_TIME_DELAY_MS } from '../../lib/constants'
 export function ReasonerDialog() {
   const { ontology } = useOntology()
   const [open, setOpen] = useState(false)
@@ -34,7 +34,7 @@ export function ReasonerDialog() {
       const reasoningResult = runReasoner(ontology)
       setResult(reasoningResult)
       setIsReasoning(false)
-    }, 500)
+    }, REASONER_DIALOG_TIME_DELAY_MS)
   }
 
   return (
