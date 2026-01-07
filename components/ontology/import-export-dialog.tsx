@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 import type React from "react";
 
 import { useState } from "react";
+
+
 import {
   Dialog,
   DialogContent,
@@ -36,6 +38,8 @@ import {
 } from "@/lib/ontology/serializers";
 import { Download, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import debug from "debug";
+const log = debug("protegedesk:import-export");
 
 export function ImportExportDialog() {
   const { ontology, setOntology } = useOntology();
@@ -124,7 +128,7 @@ export function ImportExportDialog() {
         description: `Loaded ontology: ${imported.name}`,
       });
     } catch (error) {
-      console.error("[v0] Import error:", error);
+      log("Import error:", error);
       toast({
         title: "Import failed",
         description: error instanceof Error ? error.message : "Invalid format",
