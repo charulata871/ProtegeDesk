@@ -6,6 +6,11 @@ import { useEffect, useRef, useState } from "react"
 import { useOntology } from "@/lib/ontology/context"
 import { Button } from "@/components/ui/button"
 import { ZoomIn, ZoomOut, Maximize, Download } from "lucide-react"
+import {
+  calculateNodeAngle,
+  calculateCircularPosition,
+} from "@/lib/graph-utils"
+
 
 type Node = {
   id: string
@@ -84,7 +89,7 @@ export function GraphView() {
   const { ontology, selectClass } = useOntology()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const animationRef = useRef<number>()
+  const animationRef = useRef<number | null>(null)
   const [zoom, setZoom] = useState(1)
   const [offset, setOffset] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
@@ -102,76 +107,83 @@ export function GraphView() {
     const graphEdges: Edge[] = []
 
     // Add class nodes
-    Array.from(ontology.classes.values()).forEach((owlClass, index) => {
-      const angle = (index / ontology.classes.size) * 2 * Math.PI
-      const radius = 250
-      graphNodes.push({
-        id: owlClass.id,
-        x: Math.cos(angle) * radius,
-        y: Math.sin(angle) * radius,
-        vx: 0,
-        vy: 0,
-        label: owlClass.label || owlClass.name,
-        type: "class",
-        radius: 35,
-        color: "rgb(147, 112, 219)",
-      })
+Array.from(ontology.classes.values()).forEach((owlClass, index) => {
+  const angle = calculateNodeAngle(index, ontology.classes.size)
+  const radius = 250
+  const { x, y } = calculateCircularPosition(0, 0, radius, angle)
 
-      // Add edges for superclasses
-      owlClass.superClasses.forEach((superClass) => {
-        if (superClass !== "owl:Thing") {
-          graphEdges.push({
-            from: owlClass.id,
-            to: superClass,
-            type: "subclass",
-            label: "subClassOf",
-            color: "rgba(147, 112, 219, 0.5)",
-          })
-        }
+  graphNodes.push({
+    id: owlClass.id,
+    x,
+    y,
+    vx: 0,
+    vy: 0,
+    label: owlClass.label || owlClass.name,
+    type: "class",
+    radius: 35,
+    color: "rgb(147, 112, 219)",
+  })
+
+  owlClass.superClasses.forEach((superClass) => {
+    if (superClass === "owl:Thing") return
+
+    if (graphNodes.some((n) => n.id === superClass)) {
+      graphEdges.push({
+        from: owlClass.id,
+        to: superClass,
+        type: "subclass",
+        label: "subClassOf",
+        color: "rgba(147, 112, 219, 0.5)",
       })
+    }
+  })
+}) 
+
+Array.from(ontology.properties.values()).forEach((prop, index) => {
+  const angle = calculateNodeAngle(index, ontology.properties.size)
+  const radius = 150
+  const { x, y } = calculateCircularPosition(0, 0, radius, angle)
+
+  const color =
+    prop.type === "ObjectProperty"
+      ? "rgb(99, 179, 237)"
+      : prop.type === "DataProperty"
+        ? "rgb(129, 199, 132)"
+        : "rgb(255, 152, 0)"
+
+  graphNodes.push({
+    id: prop.id,
+    x,
+    y,
+    vx: 0,
+    vy: 0,
+    label: prop.label || prop.name,
+    type: "property",
+    radius: 28,
+    color,
+  })
+
+
+  prop.domain?.forEach((domainClass) => {
+    graphEdges.push({
+      from: prop.id,
+      to: domainClass,
+      type: "property",
+      label: "domain",
+      color: "rgba(99, 179, 237, 0.3)",
     })
+  })
+})
 
-    Array.from(ontology.properties.values()).forEach((prop, index) => {
-      const angle = (index / ontology.properties.size) * 2 * Math.PI + Math.PI
-      const radius = 150
-      const color =
-        prop.type === "ObjectProperty"
-          ? "rgb(99, 179, 237)"
-          : prop.type === "DataProperty"
-            ? "rgb(129, 199, 132)"
-            : "rgb(255, 152, 0)"
-
-      graphNodes.push({
-        id: prop.id,
-        x: Math.cos(angle) * radius,
-        y: Math.sin(angle) * radius,
-        vx: 0,
-        vy: 0,
-        label: prop.label || prop.name,
-        type: "property",
-        radius: 28,
-        color: color,
-      })
-
-      // Add edges from properties to their domain/range
-      prop.domain.forEach((domainClass) => {
-        graphEdges.push({
-          from: prop.id,
-          to: domainClass,
-          type: "property",
-          label: "domain",
-          color: "rgba(99, 179, 237, 0.3)",
-        })
-      })
-    })
 
     Array.from(ontology.individuals.values()).forEach((individual, index) => {
-      const angle = (index / ontology.individuals.size) * 2 * Math.PI
-      const radius = 100
+      const angle = calculateNodeAngle(index, ontology.individuals.size)
+      const radius=100
+      const { x, y } = calculateCircularPosition(0, 0, radius, angle)
       graphNodes.push({
         id: individual.id,
-        x: Math.cos(angle) * radius + 300,
-        y: Math.sin(angle) * radius,
+        x,
+        y,
         vx: 0,
         vy: 0,
         label: individual.label || individual.name,
@@ -181,7 +193,7 @@ export function GraphView() {
       })
 
       // Add edges from individuals to their types
-      individual.types.forEach((typeClass) => {
+      individual.types?.forEach((typeClass) => {
         graphEdges.push({
           from: individual.id,
           to: typeClass,
@@ -237,6 +249,7 @@ export function GraphView() {
     const rect = canvas.getBoundingClientRect()
     canvas.width = rect.width * window.devicePixelRatio
     canvas.height = rect.height * window.devicePixelRatio
+    ctx.setTransform(1, 0, 0, 1, 0, 0)
     ctx.scale(window.devicePixelRatio, window.devicePixelRatio)
 
     // Clear canvas
